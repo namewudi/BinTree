@@ -13,13 +13,16 @@ class BinTree {
 public:
 	BinNode<T>* root;
 	BinTree() :root(nullptr){ }
-	BinTree(T val) { root = new BinNode<T>(val); }
 	~BinTree() { remove(&root); }
 	bool empty() { return root == nullptr; }
+	void insertAsRoot(T val);
 	void insertAsLC(BinNode<T>*, BinNode<T>*);
 	void insertAsRC(BinNode<T>*, BinNode<T>*);
 	void remove(BinNode<T>**);//删除某一结点
-	void inorderTraversal(BinNode<T>*p);//中序遍历
+	template<typename VST>
+	void inorderTraversal(BinNode<T>* p, VST);//中序遍历
+	template<typename VST>
+	void levelOrderTraversal(BinNode<T>* p, VST);//层序遍历
 	BinNode<T>* search(const T& e);//查找
 	//字符串转二叉树
 	void sToBinTree(string& s) { std::cout << "只支持int和char格式结点"; }
@@ -54,6 +57,14 @@ BinNode<T>* BinTree<T>::search(const T& e) {
 	return nullptr;
 }
 template<typename T>
+void BinTree<T>::insertAsRoot(T val) {
+	if (root != nullptr) {
+		std::cout << "已有根节点" << std::endl;
+		return;
+	}
+	root = new BinNode<T>(val, nullptr, nullptr, nullptr, BLACK);
+}
+template<typename T>
 void BinTree<T>::insertAsLC(BinNode<T>* p, BinNode<T>* q) {
 	if (p == nullptr) {
 		std::cout << "父节点为空" << std::endl;
@@ -79,8 +90,8 @@ void BinTree<T>::insertAsRC(BinNode<T>* p, BinNode<T>* q) {
 	p->right = q;
 	q->parent = p;
 }
-template<typename T>
-void BinTree<T>::inorderTraversal(BinNode<T>* p) {
+template<typename T> template<typename VST>
+void BinTree<T>::inorderTraversal(BinNode<T>* p, VST fo) {
 	if (p==nullptr) return;
 	std::stack<BinNode<T>*> s;
 	BinNode<T>* cur = p;
@@ -91,12 +102,40 @@ void BinTree<T>::inorderTraversal(BinNode<T>* p) {
 		}
 		if (s.empty()) break;
 		cur = s.top();
-		std::cout << cur->val << ' ';
+		fo(cur->val);
+		std::cout << ' ';
 		s.pop();
 		cur = cur->right;
 	}
 }
-
+template<typename T> template<typename VST>
+void BinTree<T>::levelOrderTraversal(BinNode<T>* p,VST fo) {
+	if (p == nullptr) return;
+	std::queue<BinNode<T>*> q;
+	BinNode<T>* cur = p;
+	q.push(cur);
+	int elemSize = 0, validSize = 1;
+	std::cout << '[';
+	while (true) {
+		for (elemSize = q.size(); elemSize > 0; elemSize--) {
+			cur = q.front(); q.pop();
+			if(cur==nullptr) std::cout << "null";
+			else {
+				fo(cur->val);
+				validSize--;
+				if (cur->left != nullptr) validSize++;
+				q.push(cur->left);
+				if (cur->right != nullptr) validSize++;
+				q.push(cur->right);
+			}
+			if (validSize == 0) {
+				std::cout << "]";
+				return;
+			}
+			else std::cout << ",";
+		}
+	}
+}
 void BinTree<int>::build_tree(std::vector<std::string>& v) {
     if (v.empty() || v[0] == "null") return;
 	BinNode<int>* _root = new BinNode<int>(stoi(v[0])), * cur;
@@ -156,7 +195,7 @@ void BinTree<char>::build_tree(std::vector<std::string>& v) {
 		}
 	}
 }
-//字符串转二叉树
+//字符串转二叉树 int特化
 void BinTree<int>::sToBinTree(string& s) {
 	s.assign(s.begin() + 1, s.end() - 1); //去括号
 	int cont = 0;
@@ -174,7 +213,7 @@ void BinTree<int>::sToBinTree(string& s) {
 	root = nullptr;
 	build_tree(node_infor);
 }
-//字符串转二叉树
+//字符串转二叉树 char特化
 void BinTree<char>::sToBinTree(string& s) {
 	s.assign(s.begin() + 1, s.end() - 1); //去括号
 	int cont = 0;
