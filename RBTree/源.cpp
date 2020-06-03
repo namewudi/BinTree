@@ -15,7 +15,7 @@ int main() {
 	tree->sToBinTree(s);
 	tree->inorderTraversal(tree->root);*/
 	RedBlack<int>* Tree = new RedBlack<int>;
-	Tree->insertAsRoot(2);
+	Tree->insert(2);
 	Tree->insert(6);
 	Tree->insert(3);
 	Tree->insert(4);

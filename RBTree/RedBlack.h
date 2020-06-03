@@ -74,11 +74,15 @@ template <typename T>
 BinNode<T>* RedBlack<T>::insert(const T& val) {
     if (search(val) != nullptr) return nullptr;//找得到则返回空指针
     BinNode<T>* x = new BinNode<T>(val, nullptr, nullptr, pre);
-    if (pre != nullptr) val < pre->val ? pre->left = x : pre->right = x;
-    solveDoubleRed(x);
-    
+    if (pre != nullptr) {
+        val < pre->val ? pre->left = x : pre->right = x;
+        solveDoubleRed(x);
+    }
+    else {
+        this->root = x;
+        x->color = BLACK;
+    }
     return x;
-
 }
 template <typename T>
 bool RedBlack<T>::remove(const T& val) {
